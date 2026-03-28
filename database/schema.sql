@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS persons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    notes TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS face_encodings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person_id INTEGER NOT NULL,
+    encoding BLOB NOT NULL,
+    image_path TEXT,
+    captured_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (person_id) REFERENCES persons(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS recognition_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person_id INTEGER,
+    confidence REAL,
+    emotion TEXT,
+    age_range TEXT,
+    gender TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceVision Pro &mdash; Real-Time Facial Recognition</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">&#128065;</div>
+            <h1 class="logo-text">FaceVision Pro</h1>
+            <p class="logo-sub">Real-Time Recognition</p>
+        </div>
+
+        <div class="nav-links">
+            <button class="nav-btn active" data-page="dashboard" onclick="navigate('dashboard')">
+                <span class="nav-icon">&#128202;</span>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-btn" data-page="register" onclick="navigate('register')">
+                <span class="nav-icon">&#128100;</span>
+                <span>Register Face</span>
+            </button>
+            <button class="nav-btn" data-page="gallery" onclick="navigate('gallery')">
+                <span class="nav-icon">&#128444;</span>
+                <span>Gallery</span>
+            </button>
+            <button class="nav-btn" data-page="settings" onclick="navigate('settings')">
+                <span class="nav-icon">&#9881;</span>
+                <span>Settings</span>
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <span class="version">v1.0.0</span>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h2>Live Dashboard</h2>
+                <div class="header-actions">
+                    <button class="btn btn-success" id="btn-toggle-camera" onclick="toggleCamera()">
+                        &#9654; Start Camera
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="camera-container card">
+                    <div class="camera-feed" id="camera-feed">
+                        <div class="camera-placeholder" id="camera-placeholder">
+                            <div class="placeholder-icon">&#127909;</div>
+                            <p>Click "Start Camera" to begin</p>
+                        </div>
+                        <img id="video-stream" src="" alt="Live Feed" style="display:none;">
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="card stats-card">
+                        <h3>Detection Stats</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Faces</span>
+                            <span class="stat-value" id="stat-faces">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Known</span>
+                            <span class="stat-value text-success" id="stat-known">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Unknown</span>
+                            <span class="stat-value text-warning" id="stat-unknown">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">FPS</span>
+                            <span class="stat-value" id="stat-fps">--</span>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Detected Faces</h3>
+                    <div class="face-cards-list" id="face-cards-list">
+                        <div class="empty-state" id="no-faces-msg">
+                            <p>No faces detected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="page" id="page-register">
+            <div class="page-header">
+                <h2>Register New Face</h2>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <span class="step-num">1</span>
+                    <span class="step-text">Position Face</span>
+                </div>
+                <div class="step-line" id="step-line-1"></div>
+                <div class="step" id="step-2">
+                    <span class="step-num">2</span>
+                    <span class="step-text">Capture</span>
+                </div>
+                <div class="step-line" id="step-line-2"></div>
+                <div class="step" id="step-3">
+                    <span class="step-num">3</span>
+                    <span class="step-text">Save Details</span>
+                </div>
+            </div>
+
+            <div class="register-step" id="register-step-1">
+                <div class="register-grid">
+                    <div class="camera-container card">
+                        <div class="camera-feed">
+                            <div class="camera-placeholder" id="reg-camera-placeholder">
+                                <div class="placeholder-icon">&#127909;</div>
+                                <p>Camera will start when you click below</p>
+                            </div>
+                            <img id="reg-video-stream" src="" alt="Registration Feed" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="register-info">
+                        <div class="card">
+                            <h3>Instructions</h3>
+                            <ul class="instruction-list">
+                                <li>Face the camera directly</li>
+                                <li>Ensure good, even lighting</li>
+                                <li>Remove sunglasses or masks</li>
+                                <li>Keep your face centered</li>
+                                <li>Maintain a neutral expression</li>
+                            </ul>
+                        </div>
+                        <div class="card quality-card">
+                            <h3>Face Quality</h3>
+                            <p class="quality-text" id="quality-text">Click start to begin</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="quality-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="btn-start-registration" onclick="startRegistrationCamera()">
+                            Start Camera
+                        </button>
+                        <button class="btn btn-accent btn-block" id="btn-start-capture" onclick="startCapture()" style="display:none;" disabled>
+                            Capture Faces &#10148;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="register-step" id="register-step-2" style="display:none;">
+                <div class="capture-area">
+                    <h3>Capturing face data...</h3>
+                    <p class="text-muted">Please hold still and look at the camera</p>
+                    <div class="progress-bar large">
+                        <div class="progress-fill" id="capture-progress" style="width: 0%"></div>
+                    </div>
+                    <p class="capture-status" id="capture-status">Capturing 0/5</p>
+                    <div class="capture-thumbnails" id="capture-thumbnails"></div>
+                </div>
+            </div>
+
+            <div class="register-step" id="register-step-3" style="display:none;">
+                <div class="save-card card">
+                    <div class="save-header">
+                        <span class="success-icon">&#10003;</span>
+                        <h3>Faces Captured Successfully!</h3>
+                    </div>
+                    <div class="capture-thumbnails" id="save-thumbnails"></div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="reg-name" placeholder="Enter person's name" class="input-field" autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <textarea id="reg-notes" placeholder="Add any notes..." class="input-field textarea"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="resetRegistration()">Cancel</button>
+                        <button class="btn btn-success" onclick="saveRegistration()">Save Person &#10003;</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="page" id="page-gallery">
+            <div class="page-header">
+                <h2>Face Gallery</h2>
+                <span class="person-count" id="person-count">0 persons registered</span>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="gallery-search" placeholder="&#128269; Search by name..."
+                       class="input-field search-input" oninput="filterGallery()">
+                <button class="btn btn-primary" onclick="loadGallery()">Refresh</button>
+            </div>
+
+            <div class="gallery-grid" id="gallery-grid">
+                <div class="empty-state">
+                    <p>No registered faces yet.<br>Go to "Register Face" to add someone.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="page" id="page-settings">
+            <div class="page-header">
+                <h2>Settings</h2>
+            </div>
+
+            <div class="settings-scroll">
+                <div class="settings-section">
+                    <h3 class="section-title">Face Detection</h3>
+                    <div class="setting-card card">
+                        <div class="setting-info">
+                            <span class="setting-label">Detection Confidence</span>
+                            <span class="setting-desc">Minimum confidence to detect a face</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="range" min="10" max="100" value="70" class="slider"
+                                   id="slider-confidence" oninput="updateSliderLabel(this, 'val-confidence', '%')">
+                            <span class="slider-value" id="val-confidence">70%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Face Recognition</h3>
+                    <div class="setting-card card">
+                        <div class="setting-info">
+                            <span class="setting-label">Recognition Tolerance</span>
+                            <span class="setting-desc">Lower = stricter matching</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="range" min="10" max="100" value="60" class="slider"
+                                   id="slider-tolerance" oninput="updateSliderLabel(this, 'val-tolerance', '', 0.01)">
+                            <span class="slider-value" id="val-tolerance">0.60</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Analysis Pipeline</h3>
+                    <div class="setting-card card">
+                        <div class="setting-info">
+                            <span class="setting-label">Analysis Interval</span>
+                            <span class="setting-desc">Full analysis every N frames (higher = faster)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="range" min="1" max="10" value="3" class="slider"
+                                   id="slider-interval" oninput="updateSliderLabel(this, 'val-interval', '')">
+                            <span class="slider-value" id="val-interval">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Feature Toggles</h3>
+                    <div class="setting-card card">
+                        <div class="setting-info">
+                            <span class="setting-label">Emotion Detection</span>
+                            <span class="setting-desc">Detect facial emotions</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-emotion" checked onchange="updateSettings()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-card card">
+                        <div class="setting-info">
+                            <span class="setting-label">Age & Gender Estimation</span>
+                            <span class="setting-desc">Estimate age range and gender</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-age-gender" checked onchange="updateSettings()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">System Status</h3>
+                    <div class="status-grid" id="status-grid">
+                    </div>
+                    <button class="btn btn-primary" onclick="downloadModels()" id="btn-download-models" style="margin-top:12px;">
+                        Download Models
+                    </button>
+                </div>
+
+                <button class="btn btn-accent btn-block" onclick="applySettings()" style="margin-top:20px;">
+                    Apply Settings
+                </button>
+            </div>
+        </section>
+
+        <footer class="status-bar">
+            <div class="status-left">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-camera">Camera: Off</span>
+                <span class="status-divider">|</span>
+                <span id="status-fps">FPS: --</span>
+            </div>
+            <div class="status-center">
+                <span id="status-face-count">Faces Detected: 0</span>
+            </div>
+            <div class="status-right">
+                <span id="status-registered">Registered: 0</span>
+            </div>
+        </footer>
+    </main>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="modal-overlay" id="modal-overlay" style="display:none;">
+        <div class="modal card">
+            <h3 id="modal-title">Confirm Delete</h3>
+            <p id="modal-message">Are you sure?</p>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" id="modal-confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
